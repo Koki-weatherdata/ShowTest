@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>気象データ自動更新テスト</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            text-align: center;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        img {
+            max-width: 100%;
+            height: auto;
+            border: 1px solid #ccc;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            background-color: white;
+        }
+        .update-btn {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>最新の気象データ (5分更新テスト)</h1>
+    <p>この画像はGitHub Actionsによって自動生成されています。</p>
+    
+    <img id="weather-image" alt="気象データグラフ">
+    
+    <br>
+    <button class="update-btn" onclick="reloadImage()">最新の画像を手動で読み込む</button>
+
+    <script>
+        function reloadImage() {
+            const img = document.getElementById('weather-image');
+            // 画像URLの後ろに現在のミリ秒をつけて、ブラウザのキャッシュを強制的に無視させる
+            img.src = "weather.png?t=" + new Date().getTime();
+        }
+
+        // ページを開いた時に画像を読み込む
+        window.onload = reloadImage;
+    </script>
+</body>
+</html>
