@@ -1,0 +1,36 @@
+name: Update Weather Image
+
+on:
+  schedule:
+    # 5分おきに実行する設定
+    - cron: '*/5 * * * *'
+  workflow_dispatch: # 手動実行用ボタンを残しておく
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Generate image
+        run: python generate_image.py
+
+      - name: Commit and Push changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add weather.png
+          git diff --quiet && git diff --staged --quiet || git commit -m "Update weather image"
+          git push
