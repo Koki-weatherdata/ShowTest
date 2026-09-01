@@ -1,10 +1,13 @@
 name: Update Weather Image
 
 on:
+  # mainブランチに変更が保存されたら実行
+  push:
+    branches:
+      - main
   schedule:
-    # 5分おきに実行する設定
     - cron: '*/5 * * * *'
-  workflow_dispatch: # 手動実行用ボタンを残しておく
+  workflow_dispatch:
 
 permissions:
   contents: write
