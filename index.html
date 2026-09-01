@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>気象データ自動更新テスト</title>
+    <title>つくば市の気象データ</title>
     <style>
         body {
             font-family: sans-serif;
@@ -18,35 +18,25 @@
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
             background-color: white;
         }
-        .update-btn {
-            margin-top: 20px;
-            padding: 10px 20px;
-            font-size: 16px;
-            cursor: pointer;
-        }
     </style>
 </head>
 <body>
-    <h1>最新の気象データ</h1>
-    <p>この画像は Google Cloud 上で自動生成されています。</p>
+    <h1>つくば市の気象データ</h1>
+    <p>この画像は Google Cloud 上で3時間ごとに自動生成</p>
     
+    <!-- 画像を表示する場所 -->
     <img id="weather-image" alt="気象データグラフ">
-    
-    <br>
-    <button class="update-btn" onclick="reloadImage()">最新の画像を手動で読み込む</button>
 
     <script>
-        function reloadImage() {
+        // ページを開いた時に、キャッシュを回避して最新画像を自動読み込みする
+        window.onload = function() {
             const img = document.getElementById('weather-image');
             const bucketName = "test-images-2026"; 
             const baseUrl = `https://storage.googleapis.com/${bucketName}/weather.png`;
             
-            // 末尾に現在時刻（タイムスタンプ）を付与してブラウザキャッシュを回避
+            // 末尾に現在時刻を付与してキャッシュを回避
             img.src = `${baseUrl}?t=${new Date().getTime()}`;
-        }
-
-        // ページを開いた時に画像を読み込む
-        window.onload = reloadImage;
+        };
     </script>
 </body>
 </html>
