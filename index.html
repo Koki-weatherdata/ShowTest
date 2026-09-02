@@ -3,40 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>つくば市の気象データ</title>
-    <style>
-        body {
-            font-family: sans-serif;
-            text-align: center;
-            padding: 20px;
-            background-color: #f9f9f9;
-        }
-        img {
-            max-width: 100%;
-            height: auto;
-            border: 1px solid #ccc;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            background-color: white;
-        }
-    </style>
+    <title>ECMWF 海面更正気圧 予報</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>つくば市の気象データ</h1>
-    <p>この画像は Google Cloud 上で3時間ごとに自動生成</p>
-    
-    <!-- 画像を表示する場所 -->
-    <img id="weather-image" alt="気象データグラフ">
-
-    <script>
-        // ページを開いた時に、キャッシュを回避して最新画像を自動読み込みする
-        window.onload = function() {
-            const img = document.getElementById('weather-image');
-            const bucketName = "test-images-2026"; 
-            const baseUrl = `https://storage.googleapis.com/${bucketName}/weather.png`;
+    <div class="container">
+        <h1>ECMWF 海面更正気圧 (MSL)</h1>
+        <p class="subtitle">ECMWFから取得（CC BY 4.0）</p>
+        
+        <div class="viewer">
+            <!-- 予測時間表示 -->
+            <div class="time-label">Forecast Time: <span id="ft-display">FT=006h</span></div>
             
-            // 末尾に現在時刻を付与してキャッシュを回避
-            img.src = `${baseUrl}?t=${new Date().getTime()}`;
-        };
-    </script>
+            <!-- 画像表示エリア -->
+            <div class="image-container">
+                <img id="weather-image" alt="マップ" src="">
+                <div id="loading" class="loading">画像を読み込み中...</div>
+            </div>
+
+            <!-- コントロールエリア -->
+            <div class="controls">
+                <button id="play-btn">▶ 再生</button>
+                <input type="range" id="time-slider" min="0" max="23" value="0" step="1">
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
 </body>
 </html>
