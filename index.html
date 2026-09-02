@@ -3,11 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ECMWF Forecast</title>
+    <title>ECMWF ダッシュボード</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="container"> 
+    <div class="container">
+        <h1>ECMWF 総観場予報</h1>
+        
         <!-- 初期値選択のプルダウン -->
         <div class="cycle-selector">
             <label for="cycle-select">初期値:</label>
@@ -15,12 +17,16 @@
                 <option>読み込み中...</option>
             </select>
         </div>
+        
+        <p class="init-time" id="init-time-display">初期値: --</p>
+        
         <div class="viewer">
             <div class="time-label">
                 予測時刻: <span id="valid-time-display">--</span>
                 <span id="step-display" class="step-badge">FT=--</span>
             </div>
             
+            <!-- 2枚の画像を並べるエリア -->
             <div class="dual-images">
                 <div class="image-box">
                     <div class="image-title">500hPa 高度・絶対渦度</div>
