@@ -1,69 +1,80 @@
-// === 設定 ===
-const baseUrl = "https://storage.googleapis.com/ecmwf-images/msl";
-const steps = [];
-for (let i = 6; i <= 144; i += 6) {
-    steps.push(i); // [6, 12, 18 ... 144]
-}
+// バケットのルートURL（ご自身のバケット名に変更してください）
+const BUCKET_URL = "https://storage.googleapis.com/ecmwf-images";
 
-// ページ読み込み時のタイムスタンプ（キャッシュ回避用）
-// ※スライダーを動かす度に変わると画像が再ダウンロードされてチラつくため、固定する
-const sessionCacheBuster = new Date().getTime();
-
-// === DOM要素の取得 ===
-const slider = document.getElementById("time-slider");
-const ftDisplay = document.getElementById("ft-display");
-const imgElement = document.getElementById("weather-image");
-const loadingText = document.getElementById("loading");
-const playBtn = document.getElementById("play-btn");
-
+let manifestData = null;
 let playInterval = null;
 
-// === 画像の更新処理 ===
-function updateImage(index) {
-    const stepVal = steps[index];
-    // 3桁のゼロ埋め (例: 6 -> 006, 12 -> 012)
-    const stepStr = String(stepVal).padStart(3, '0');
-    
-    ftDisplay.textContent = `FT=${stepStr}h`;
-    
-    // 画像URLの組み立て
-    const imageUrl = `${baseUrl}/msl_${stepStr}.png?t=${sessionCacheBuster}`;
-    
-    imgElement.src = imageUrl;
-    
-    // 読み込み完了後にloading表示を消す
-    imgElement.onload = () => {
-        imgElement.style.display = "block";
-        loadingText.style.display = "none";
-    };
+// DOM要素
+const slider = document.getElementById("time-slider");
+const playBtn = document.getElementById("play-btn");
+const initTimeDisplay = document.getElementById("init-time-display");
+const validTimeDisplay = document.getElementById("valid-time-display");
+const stepDisplay = document.getElementById("step-display");
+const img500 = document.getElementById("img-500");
+const img850 = document.getElementById("img-850");
+
+// 1. マニフェストの取得と初期化
+async function loadManifest() {
+    try {
+        // キャッシュ回避のためタイムスタンプを付与
+        const response = await fetch(`${BUCKET_URL}/manifest.json?t=${new Date().getTime()}`);
+        manifestData = await response.json();
+        
+        // 初期値の表示
+        initTimeDisplay.textContent = `初期値: ${manifestData.init_time_jst}`;
+        
+        // スライダーの設定 (0 から 配列の最後のインデックスまで)
+        slider.max = manifestData.figures.length - 1;
+        slider.disabled = false;
+        
+        // 事前読み込みと最初の画像表示
+        preloadImages();
+        updateDisplay(0);
+        
+    } catch (error) {
+        console.error("マニフェストの読み込みに失敗しました:", error);
+        initTimeDisplay.textContent = "データの読み込みに失敗しました。";
+    }
 }
 
-// === イベントリスナー ===
-// スライダーを手動で動かした時
-slider.addEventListener("input", (e) => {
-    updateImage(parseInt(e.target.value));
-    stopAnimation(); // 手動操作時は自動再生を停止
-});
+// 2. 画面の更新処理
+function updateDisplay(index) {
+    if (!manifestData) return;
+    
+    const frame = manifestData.figures[index];
+    
+    // テキストの更新
+    validTimeDisplay.textContent = frame.valid_time;
+    stepDisplay.textContent = `FT=${String(frame.step).padStart(3, '0')}h`;
+    
+    // 画像URLの更新（キャッシュ回避用のパラメータを付与してチラつきを防ぐ）
+    const cacheBuster = `?init=${manifestData.init_time}`;
+    img500.src = `${BUCKET_URL}/${frame.file_500}${cacheBuster}`;
+    img850.src = `${BUCKET_URL}/${frame.file_850}${cacheBuster}`;
+}
 
-// 再生/停止ボタン
-playBtn.addEventListener("click", () => {
-    if (playInterval) {
-        stopAnimation();
-    } else {
-        startAnimation();
-    }
-});
+// 3. 全画像の裏側での事前読み込み
+function preloadImages() {
+    const cacheBuster = `?init=${manifestData.init_time}`;
+    manifestData.figures.forEach(frame => {
+        const i1 = new Image();
+        const i2 = new Image();
+        i1.src = `${BUCKET_URL}/${frame.file_500}${cacheBuster}`;
+        i2.src = `${BUCKET_URL}/${frame.file_850}${cacheBuster}`;
+    });
+}
 
+// 4. アニメーション制御
 function startAnimation() {
     playBtn.textContent = "■ 停止";
     playInterval = setInterval(() => {
         let nextIndex = parseInt(slider.value) + 1;
-        if (nextIndex >= steps.length) {
-            nextIndex = 0; // 最後まで行ったら最初に戻る
+        if (nextIndex >= manifestData.figures.length) {
+            nextIndex = 0;
         }
         slider.value = nextIndex;
-        updateImage(nextIndex);
-    }, 800); // 0.8秒間隔で切り替え
+        updateDisplay(nextIndex);
+    }, 800);
 }
 
 function stopAnimation() {
@@ -72,13 +83,16 @@ function stopAnimation() {
     playInterval = null;
 }
 
-// === 初期化 ===
-// 背景で全画像を事前読み込み（キャッシュ）してスライダーを滑らかにする
-steps.forEach(step => {
-    const img = new Image();
-    const stepStr = String(step).padStart(3, '0');
-    img.src = `${baseUrl}/msl_${stepStr}.png?t=${sessionCacheBuster}`;
+// イベントリスナー
+slider.addEventListener("input", (e) => {
+    updateDisplay(parseInt(e.target.value));
+    stopAnimation();
 });
 
-// 最初の画像を表示
-updateImage(0);
+playBtn.addEventListener("click", () => {
+    if (playInterval) stopAnimation();
+    else startAnimation();
+});
+
+// 起動
+loadManifest();
