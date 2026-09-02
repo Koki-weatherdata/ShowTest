@@ -3,32 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ECMWF 海面更正気圧 予報</title>
+    <title>ECMWF Forcast</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
-        <h1>ECMWF 海面更正気圧 (MSL)</h1>
-        <p class="subtitle">ECMWFから取得（CC BY 4.0）</p>
+        <h1>CC BY 4.0</h1>
+        <p class="init-time" id="init-time-display">初期値: 読み込み中...</p>
         
         <div class="viewer">
-            <!-- 予測時間表示 -->
-            <div class="time-label">Forecast Time: <span id="ft-display">FT=006h</span></div>
+            <div class="time-label">
+                予測時刻: <span id="valid-time-display">--</span>
+                <span id="step-display" class="step-badge">FT=--</span>
+            </div>
             
-            <!-- 画像表示エリア -->
-            <div class="image-container">
-                <img id="weather-image" alt="マップ" src="">
-                <div id="loading" class="loading">画像を読み込み中...</div>
+            <div class="dual-images">
+                <div class="image-box">
+                    <div class="image-title">500hPa 高度・絶対渦度</div>
+                    <img id="img-500" alt="500hPa 予報図" src="">
+                </div>
+                <div class="image-box">
+                    <div class="image-title">地上気圧・850hPa 気温・風</div>
+                    <img id="img-850" alt="850hPa 予報図" src="">
+                </div>
             </div>
 
-            <!-- コントロールエリア -->
             <div class="controls">
                 <button id="play-btn">▶ 再生</button>
-                <input type="range" id="time-slider" min="0" max="23" value="0" step="1">
+                <input type="range" id="time-slider" min="0" max="0" value="0" step="1" disabled>
             </div>
         </div>
     </div>
-
     <script src="script.js"></script>
 </body>
 </html>
