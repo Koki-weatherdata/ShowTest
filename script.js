@@ -1,126 +1,161 @@
-// ご自身のバケット名に合わせています
-const BUCKET_URL = "https://storage.googleapis.com/ecmwf-images";
+// GCSバケットのベースURL（ローカル開発時は 'https://storage.googleapis.com/weather-dashboard-507311' 等に書き換えてください）
+const BASE_URL = ""; 
 
-let manifestData = null;
-let playInterval = null;
+// 利用可能な変数の定義
+const VARIABLES = {
+    "z500-vort": "500hPa 高度・絶対渦度",
+    "mslp-t850": "地上気圧・850hPa 気温・風",
+    "cam": "寒気質量 (Cold Air Mass)",
+    "ivt": "水蒸気フラックス (IVT)",
+    "ept850": "850hPa 相当温位",
+    "qvec850": "850hPa Qベクトル・発散",
+    "qgomg700": "700hPa QG-Omega"
+};
 
-// DOM要素の取得
-const slider = document.getElementById("time-slider");
-const playBtn = document.getElementById("play-btn");
+// DOM要素
 const cycleSelect = document.getElementById("cycle-select");
-const initTimeDisplay = document.getElementById("init-time-display");
 const validTimeDisplay = document.getElementById("valid-time-display");
 const stepDisplay = document.getElementById("step-display");
-const img500 = document.getElementById("img-500");
-const img850 = document.getElementById("img-850");
+const imgLeft = document.getElementById("img-left");
+const imgRight = document.getElementById("img-right");
+const varSelectLeft = document.getElementById("var-select-left");
+const varSelectRight = document.getElementById("var-select-right");
+const timeSlider = document.getElementById("time-slider");
+const playBtn = document.getElementById("play-btn");
 
-// 1. バケットルートから cycles.json を取得してプルダウンを作る
-async function initApp() {
-    try {
-        const res = await fetch(`${BUCKET_URL}/cycles.json?t=${new Date().getTime()}`);
-        const cycles = await res.json();
-        
-        cycleSelect.innerHTML = "";
-        cycles.forEach((cycle) => {
-            const option = document.createElement("option");
-            option.value = cycle;
-            // "2026090200" -> "2026/09/02 00Z" のように見やすく整形
-            const yyyy = cycle.substring(0, 4);
-            const mm = cycle.substring(4, 6);
-            const dd = cycle.substring(6, 8);
-            const hh = cycle.substring(8, 10);
-            option.textContent = `${yyyy}/${mm}/${dd} ${hh}Z`;
-            cycleSelect.appendChild(option);
-        });
-        cycleSelect.disabled = false;
-        
-        // 最新のサイクル（リストの先頭）を読み込む
-        if (cycles.length > 0) {
-            loadManifest(cycles[0]);
-        }
-    } catch (error) {
-        console.error("サイクルの読み込みエラー:", error);
-        cycleSelect.innerHTML = "<option>データ取得エラー</option>";
-    }
-}
+let frames = [];
+let currentIndex = 0;
+let isPlaying = false;
+let playInterval;
 
-// 2. 選んだ初期時刻のフォルダから manifest.json を取得
-async function loadManifest(cycleStr) {
-    stopAnimation();
-    manifestData = null;
-    slider.disabled = true;
+// 初期化
+async function init() {
+    populateVarSelects();
+    await loadCycles();
     
-    try {
-        const res = await fetch(`${BUCKET_URL}/${cycleStr}/manifest.json`);
-        manifestData = await res.json();
-        
-        initTimeDisplay.textContent = `初期値: ${manifestData.init_time_jst}`;
-        slider.max = manifestData.figures.length - 1;
-        slider.value = 0;
-        slider.disabled = false;
-        
-        preloadImages();
-        updateDisplay(0);
-    } catch (error) {
-        console.error("マニフェストの読み込みエラー:", error);
-        initTimeDisplay.textContent = "データの読み込みに失敗しました。";
-    }
-}
-
-// 3. 画面の更新（2枚の画像を同時に切り替え）
-function updateDisplay(index) {
-    if (!manifestData) return;
+    // イベントリスナー
+    cycleSelect.addEventListener("change", () => loadManifest(cycleSelect.value));
+    timeSlider.addEventListener("input", (e) => updateView(parseInt(e.target.value)));
+    playBtn.addEventListener("click", togglePlay);
     
-    const frame = manifestData.figures[index];
-    validTimeDisplay.textContent = frame.valid_time;
-    stepDisplay.textContent = `FT=${String(frame.step).padStart(3, '0')}h`;
-    
-    // manifest.json内のパス(例: 2026090200/500hPa_006.png) をそのまま結合
-    img500.src = `${BUCKET_URL}/${frame.file_500}`;
-    img850.src = `${BUCKET_URL}/${frame.file_850}`;
-}
-
-// 4. 裏側で画像を事前読み込み（スライダーを滑らかにするため）
-function preloadImages() {
-    manifestData.figures.forEach(frame => {
-        const i1 = new Image();
-        const i2 = new Image();
-        i1.src = `${BUCKET_URL}/${frame.file_500}`;
-        i2.src = `${BUCKET_URL}/${frame.file_850}`;
+    // 変数が変更されたら、必要な画像をプリロードして現在のビューを更新
+    varSelectLeft.addEventListener("change", () => {
+        preloadVariables();
+        updateView(currentIndex);
+    });
+    varSelectRight.addEventListener("change", () => {
+        preloadVariables();
+        updateView(currentIndex);
     });
 }
 
-// 5. アニメーション制御
-function startAnimation() {
-    playBtn.textContent = "■ 停止";
-    playInterval = setInterval(() => {
-        let nextIndex = parseInt(slider.value) + 1;
-        if (nextIndex >= manifestData.figures.length) {
-            nextIndex = 0;
-        }
-        slider.value = nextIndex;
-        updateDisplay(nextIndex);
-    }, 800);
+// プルダウンに要素を追加し、デフォルト値をセット
+function populateVarSelects() {
+    for (const [key, name] of Object.entries(VARIABLES)) {
+        const optL = new Option(name, key);
+        const optR = new Option(name, key);
+        varSelectLeft.add(optL);
+        varSelectRight.add(optR);
+    }
+    // デフォルトセット
+    varSelectLeft.value = "z500-vort";
+    varSelectRight.value = "mslp-t850";
 }
 
-function stopAnimation() {
-    playBtn.textContent = "▶ 再生";
-    if (playInterval) {
-        clearInterval(playInterval);
-        playInterval = null;
+// cycles.jsonの取得
+async function loadCycles() {
+    try {
+        const res = await fetch(`${BASE_URL}/cycles.json`);
+        const cycles = await res.json();
+        
+        cycleSelect.innerHTML = "";
+        cycles.forEach(cycle => {
+            cycleSelect.add(new Option(cycle, cycle));
+        });
+        
+        cycleSelect.disabled = false;
+        if (cycles.length > 0) {
+            await loadManifest(cycles[0]);
+        }
+    } catch (e) {
+        cycleSelect.innerHTML = "<option>読み込み失敗</option>";
     }
 }
 
-// イベントリスナー
-cycleSelect.addEventListener("change", (e) => loadManifest(e.target.value));
-slider.addEventListener("input", (e) => {
-    updateDisplay(parseInt(e.target.value));
-    stopAnimation();
-});
-playBtn.addEventListener("click", () => {
-    if (playInterval) stopAnimation();
-    else startAnimation();
-});
+// 選択された初期値のmanifestを読み込む
+async function loadManifest(cyclePrefix) {
+    pause();
+    try {
+        const res = await fetch(`${BASE_URL}/${cyclePrefix}/manifest.json`);
+        const manifest = await res.json();
+        frames = manifest.figures;
+        
+        timeSlider.max = frames.length - 1;
+        timeSlider.value = 0;
+        timeSlider.disabled = false;
+        
+        preloadVariables(); // 初期表示に必要な変数だけをプリロード
+        updateView(0);
+    } catch (e) {
+        console.error("Manifest load error", e);
+    }
+}
 
-// アプリの起動
-initApp();
+// 現在プルダウンで選択されている変数のみを全ステップ分キャッシュ（オンデマンド読み込み）
+function preloadVariables() {
+    if (!frames.length) return;
+    const vLeft = varSelectLeft.value;
+    const vRight = varSelectRight.value;
+    
+    frames.forEach(frame => {
+        if (frame[`file_${vLeft}`]) {
+            const imgL = new Image();
+            imgL.src = `${BASE_URL}/${frame[`file_${vLeft}`]}`;
+        }
+        if (frame[`file_${vRight}`] && vLeft !== vRight) {
+            const imgR = new Image();
+            imgR.src = `${BASE_URL}/${frame[`file_${vRight}`]}`;
+        }
+    });
+}
+
+// 画面の更新
+function updateView(index) {
+    if (!frames.length || index < 0 || index >= frames.length) return;
+    currentIndex = index;
+    timeSlider.value = index;
+    
+    const frame = frames[index];
+    validTimeDisplay.textContent = frame.valid_time;
+    stepDisplay.textContent = `FT=${String(frame.step).padStart(3, '0')}`;
+    
+    const vLeft = varSelectLeft.value;
+    const vRight = varSelectRight.value;
+    
+    imgLeft.src = frame[`file_${vLeft}`] ? `${BASE_URL}/${frame[`file_${vLeft}`]}` : "";
+    imgRight.src = frame[`file_${vRight}`] ? `${BASE_URL}/${frame[`file_${vRight}`]}` : "";
+}
+
+// 再生コントロール
+function togglePlay() {
+    isPlaying ? pause() : play();
+}
+
+function play() {
+    isPlaying = true;
+    playBtn.textContent = "■ 停止";
+    playInterval = setInterval(() => {
+        let next = currentIndex + 1;
+        if (next >= frames.length) next = 0;
+        updateView(next);
+    }, 600); // 0.6秒間隔
+}
+
+function pause() {
+    isPlaying = false;
+    playBtn.textContent = "▶ 再生";
+    clearInterval(playInterval);
+}
+
+// 実行
+document.addEventListener("DOMContentLoaded", init);
