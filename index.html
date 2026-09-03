@@ -22,7 +22,6 @@
                 <span id="step-display" class="step-badge">FT=--</span>
             </div>
         </div>
-        
         <div class="viewer">
             <div class="dual-images">
                 <!-- 左画面 -->
@@ -43,10 +42,11 @@
 
             <div class="controls">
                 <button id="play-btn">▶ 再生</button>
-                <input type="range" id="time-slider" min="0" max="0" value="0" step="1" disabled>
+                <!-- スライダーを廃止し、FTバンドのコンテナを配置 -->
+                <div id="ft-band" class="ft-band"></div>
             </div>
         </div>
     </div>
-    <script src="script.js?v=4"></script>
+    <script src="script.js?v=5"></script>
 </body>
 </html>
