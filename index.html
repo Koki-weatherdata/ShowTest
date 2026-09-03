@@ -3,38 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ECMWF 総観場予報ダッシュボード</title>
+    <title>ECMWF ダッシュボード</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
         <h1>ECMWF 総観場予報</h1>
         
-        <!-- 初期値選択のプルダウン -->
-        <div class="cycle-selector">
-            <label for="cycle-select">初期値:</label>
-            <select id="cycle-select" disabled>
-                <option>読み込み中...</option>
-            </select>
-        </div>
-        
-        <p class="init-time" id="init-time-display">Init: --</p>
-        
-        <div class="viewer">
+        <div class="header-controls">
+            <div class="cycle-selector">
+                <label for="cycle-select">初期値 (Init):</label>
+                <select id="cycle-select" disabled>
+                    <option>読み込み中...</option>
+                </select>
+            </div>
             <div class="time-label">
                 Valid Time: <span id="valid-time-display">--</span>
                 <span id="step-display" class="step-badge">FT=--</span>
             </div>
-            
-            <!-- 2枚の画像を並べるエリア -->
+        </div>
+        
+        <div class="viewer">
             <div class="dual-images">
+                <!-- 左画面 -->
                 <div class="image-box">
-                    <div class="image-title">500hPa 高度・絶対渦度</div>
-                    <img id="img-500" alt="500hPa 予報図" src="">
+                    <div class="image-header">
+                        <select id="var-select-left" class="var-select"></select>
+                    </div>
+                    <img id="img-left" alt="Left View" src="">
                 </div>
+                <!-- 右画面 -->
                 <div class="image-box">
-                    <div class="image-title">地上気圧・850hPa 気温・風</div>
-                    <img id="img-850" alt="850hPa 予報図" src="">
+                    <div class="image-header">
+                        <select id="var-select-right" class="var-select"></select>
+                    </div>
+                    <img id="img-right" alt="Right View" src="">
                 </div>
             </div>
 
@@ -44,7 +47,6 @@
             </div>
         </div>
     </div>
-    <!-- キャッシュ回避用にパラメータをつける -->
-    <script src="script.js?v=2"></script>
+    <script src="script.js?v=3"></script>
 </body>
 </html>
