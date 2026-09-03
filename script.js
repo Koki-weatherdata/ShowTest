@@ -1,9 +1,8 @@
-// GCSバケットのベースURL（ローカル開発時は 'https://storage.googleapis.com/weather-dashboard-507311' 等に書き換えてください）
 const BASE_URL = "https://storage.googleapis.com/ecmwf-images-dev"; 
 
 // 利用可能な変数の定義
 const VARIABLES = {
-    "z500-vort": "500hPa 高度・絶対渦度",
+    "z500-vort": "500hPa 高度・相対渦度",
     "mslp-t850": "地上気圧・850hPa 気温・風",
     "cam": "寒気質量 (Cold Air Mass) [θ<280K]",
     "cam293": "寒気質量 (Cold Air Mass) [θ<293K]",
