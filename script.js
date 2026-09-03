@@ -34,6 +34,7 @@ async function init() {
     cycleSelect.addEventListener("change", () => loadManifest(cycleSelect.value));
     playBtn.addEventListener("click", togglePlay);
     
+    // 変数変更時に該当変数の全ステップをバックグラウンドでプリロード
     varSelectLeft.addEventListener("change", () => {
         preloadVariables();
         updateView(currentIndex);
@@ -55,7 +56,8 @@ function populateVarSelects() {
 
 async function loadCycles() {
     try {
-        const res = await fetch(`${BASE_URL}/cycles.json`);
+        // 設定ファイルのみキャッシュ回避で最新を取得
+        const res = await fetch(`${BASE_URL}/cycles.json?t=${Date.now()}`);
         const cycles = await res.json();
         
         cycleSelect.innerHTML = "";
@@ -75,7 +77,8 @@ async function loadCycles() {
 async function loadManifest(cyclePrefix) {
     pause();
     try {
-        const res = await fetch(`${BASE_URL}/${cyclePrefix}/manifest.json`);
+        // マニフェストのみキャッシュ回避
+        const res = await fetch(`${BASE_URL}/${cyclePrefix}/manifest.json?t=${Date.now()}`);
         const manifest = await res.json();
         frames = manifest.figures;
         
@@ -84,7 +87,6 @@ async function loadManifest(cyclePrefix) {
             const el = document.createElement("div");
             el.className = "ft-tick";
             
-            // 24時間ごとに数値を表示、それ以外はドットを配置
             if (frame.step % 24 === 0) {
                 el.textContent = frame.step; 
             } else {
@@ -93,7 +95,6 @@ async function loadManifest(cyclePrefix) {
                 el.appendChild(dot);
             }
             
-            // ホバーイベント（再生中でない場合のみ即時反映）
             el.addEventListener("mouseover", () => {
                 if (!isPlaying) updateView(index);
             });
@@ -112,18 +113,16 @@ function preloadVariables() {
     if (!frames.length) return;
     const vLeft = varSelectLeft.value;
     const vRight = varSelectRight.value;
-    const cycle = cycleSelect.value; // 現在のディレクトリ（初期値）を取得
     
+    // 画像はキャッシュパラメータを付与せず、ブラウザのキャッシュを最大限利用する
     frames.forEach(frame => {
         if (frame[`file_${vLeft}`]) {
             const imgL = new Image();
-            // URLに ${cycle} を挟む
-            imgL.src = `${BASE_URL}/${cycle}/${frame[`file_${vLeft}`]}`;
+            imgL.src = `${BASE_URL}/${frame[`file_${vLeft}`]}`;
         }
         if (frame[`file_${vRight}`] && vLeft !== vRight) {
             const imgR = new Image();
-            // URLに ${cycle} を挟む
-            imgR.src = `${BASE_URL}/${cycle}/${frame[`file_${vRight}`]}`;
+            imgR.src = `${BASE_URL}/${frame[`file_${vRight}`]}`;
         }
     });
 }
@@ -138,11 +137,10 @@ function updateView(index) {
     
     const vLeft = varSelectLeft.value;
     const vRight = varSelectRight.value;
-    const cycle = cycleSelect.value; // 現在のディレクトリ（初期値）を取得
     
-    // URLに ${cycle} を挟む
-    imgLeft.src = frame[`file_${vLeft}`] ? `${BASE_URL}/${cycle}/${frame[`file_${vLeft}`]}` : "";
-    imgRight.src = frame[`file_${vRight}`] ? `${BASE_URL}/${cycle}/${frame[`file_${vRight}`]}` : "";
+    // プリロード時と完全に一致するURLを指定し、キャッシュから即座に表示させる
+    imgLeft.src = frame[`file_${vLeft}`] ? `${BASE_URL}/${frame[`file_${vLeft}`]}` : "";
+    imgRight.src = frame[`file_${vRight}`] ? `${BASE_URL}/${frame[`file_${vRight}`]}` : "";
     
     Array.from(ftBand.children).forEach((el, idx) => {
         if (idx === index) {
