@@ -5,11 +5,13 @@ const BASE_URL = "https://storage.googleapis.com/ecmwf-images-dev";
 const VARIABLES = {
     "z500-vort": "500hPa 高度・絶対渦度",
     "mslp-t850": "地上気圧・850hPa 気温・風",
-    "cam": "寒気質量 (Cold Air Mass)",
+    "cam": "寒気質量 (Cold Air Mass) [θ<280K]",
+    "cam293": "寒気質量 (Cold Air Mass) [θ<293K]",
     "ivt": "水蒸気フラックス (IVT)",
     "ept850": "850hPa 相当温位",
     "qvec850": "850hPa Qベクトル・発散",
-    "qgomg700": "700hPa QG-Omega"
+    "qgomg700": "700hPa QG-Omega",
+    "col_index": "500hPa 寒冷渦指標"
 };
 
 // DOM要素
