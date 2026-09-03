@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ECMWF ダッシュボード</title>
+    <title>ECMWF 総観場予報ダッシュボード</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -22,16 +22,15 @@
                 <span id="step-display" class="step-badge">FT=--</span>
             </div>
         </div>
+        
         <div class="viewer">
             <div class="dual-images">
-                <!-- 左画面 -->
                 <div class="image-box">
                     <div class="image-header">
                         <select id="var-select-left" class="var-select"></select>
                     </div>
                     <img id="img-left" alt="Left View" src="">
                 </div>
-                <!-- 右画面 -->
                 <div class="image-box">
                     <div class="image-header">
                         <select id="var-select-right" class="var-select"></select>
@@ -42,11 +41,10 @@
 
             <div class="controls">
                 <button id="play-btn">▶ 再生</button>
-                <!-- スライダーを廃止し、FTバンドのコンテナを配置 -->
                 <div id="ft-band" class="ft-band"></div>
             </div>
         </div>
     </div>
-    <script src="script.js?v=5"></script>
+    <script src="script.js?v=7"></script>
 </body>
 </html>
