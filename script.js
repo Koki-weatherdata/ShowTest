@@ -82,9 +82,18 @@ async function loadManifest(cyclePrefix) {
         ftBand.innerHTML = "";
         frames.forEach((frame, index) => {
             const el = document.createElement("div");
-            el.className = "ft-item";
-            el.textContent = frame.step;
+            el.className = "ft-tick";
             
+            // 24時間ごとに数値を表示、それ以外はドットを配置
+            if (frame.step % 24 === 0) {
+                el.textContent = frame.step; 
+            } else {
+                const dot = document.createElement("div");
+                dot.className = "tick-dot";
+                el.appendChild(dot);
+            }
+            
+            // ホバーイベント（再生中でない場合のみ即時反映）
             el.addEventListener("mouseover", () => {
                 if (!isPlaying) updateView(index);
             });
@@ -130,10 +139,10 @@ function updateView(index) {
     imgLeft.src = frame[`file_${vLeft}`] ? `${BASE_URL}/${frame[`file_${vLeft}`]}` : "";
     imgRight.src = frame[`file_${vRight}`] ? `${BASE_URL}/${frame[`file_${vRight}`]}` : "";
     
+    // FTバンドのアクティブ状態を更新
     Array.from(ftBand.children).forEach((el, idx) => {
         if (idx === index) {
             el.classList.add("active");
-            el.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
         } else {
             el.classList.remove("active");
         }
