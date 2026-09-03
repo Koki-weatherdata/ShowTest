@@ -112,15 +112,18 @@ function preloadVariables() {
     if (!frames.length) return;
     const vLeft = varSelectLeft.value;
     const vRight = varSelectRight.value;
+    const cycle = cycleSelect.value; // 現在のディレクトリ（初期値）を取得
     
     frames.forEach(frame => {
         if (frame[`file_${vLeft}`]) {
             const imgL = new Image();
-            imgL.src = `${BASE_URL}/${frame[`file_${vLeft}`]}`;
+            // URLに ${cycle} を挟む
+            imgL.src = `${BASE_URL}/${cycle}/${frame[`file_${vLeft}`]}`;
         }
         if (frame[`file_${vRight}`] && vLeft !== vRight) {
             const imgR = new Image();
-            imgR.src = `${BASE_URL}/${frame[`file_${vRight}`]}`;
+            // URLに ${cycle} を挟む
+            imgR.src = `${BASE_URL}/${cycle}/${frame[`file_${vRight}`]}`;
         }
     });
 }
@@ -135,11 +138,12 @@ function updateView(index) {
     
     const vLeft = varSelectLeft.value;
     const vRight = varSelectRight.value;
+    const cycle = cycleSelect.value; // 現在のディレクトリ（初期値）を取得
     
-    imgLeft.src = frame[`file_${vLeft}`] ? `${BASE_URL}/${frame[`file_${vLeft}`]}` : "";
-    imgRight.src = frame[`file_${vRight}`] ? `${BASE_URL}/${frame[`file_${vRight}`]}` : "";
+    // URLに ${cycle} を挟む
+    imgLeft.src = frame[`file_${vLeft}`] ? `${BASE_URL}/${cycle}/${frame[`file_${vLeft}`]}` : "";
+    imgRight.src = frame[`file_${vRight}`] ? `${BASE_URL}/${cycle}/${frame[`file_${vRight}`]}` : "";
     
-    // FTバンドのアクティブ状態を更新
     Array.from(ftBand.children).forEach((el, idx) => {
         if (idx === index) {
             el.classList.add("active");
