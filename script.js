@@ -11,7 +11,7 @@ const VARIABLES = {
     "ept850": "850hPa 相当温位",
     "qvec850": "850hPa Qベクトル・発散",
     "qgomg700": "700hPa QG-Omega",
-    "col_index": "500hPa 寒冷渦指標"
+    "col-index": "500hPa 寒冷渦指標"
 };
 
 // DOM要素
