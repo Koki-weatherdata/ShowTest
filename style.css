@@ -91,6 +91,7 @@ select {
     background: #f1f5f9;
     padding: 12px 20px;
     border-radius: 6px;
+    overflow-x: hidden;
 }
 #play-btn {
     padding: 8px 16px;
@@ -106,7 +107,44 @@ select {
 #play-btn:hover {
     background-color: #27ae60;
 }
-#time-slider {
+
+/* FTバンドのコンテナ */
+.ft-band {
+    display: flex;
     flex-grow: 1;
+    gap: 4px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    align-items: center;
+}
+
+/* 各FT要素のブロック */
+.ft-item {
+    padding: 6px 10px;
+    font-size: 0.9rem;
+    background: #cbd5e1;
+    color: #334155;
+    border-radius: 4px;
     cursor: pointer;
+    user-select: none;
+    transition: all 0.1s ease;
+    text-align: center;
+    min-width: 25px;
+    font-weight: 500;
+}
+
+/* ホバーで光る */
+.ft-item:hover {
+    background: #94a3b8;
+    color: #fff;
+    transform: scale(1.05);
+}
+
+/* 現在表示中のFT */
+.ft-item.active {
+    background: #3498db;
+    color: #fff;
+    font-weight: bold;
+    box-shadow: 0 0 8px rgba(52, 152, 219, 0.6);
+    transform: scale(1.1);
 }
