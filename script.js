@@ -1,5 +1,5 @@
 // GCSバケットのベースURL（ローカル開発時は 'https://storage.googleapis.com/weather-dashboard-507311' 等に書き換えてください）
-const BASE_URL = ""; 
+const BASE_URL = "https://storage.googleapis.com/ecmwf-images-dev"; 
 
 // 利用可能な変数の定義
 const VARIABLES = {
