@@ -9,14 +9,13 @@ const VARIABLES = {
     "cam293": "寒気質量 (Cold Air Mass) [θ<293K]",
     "ivt": "水蒸気フラックス (IVT)",
     "ept850": "850hPa 相当温位・海面気圧",
-    "qvec850": "850hPa Qベクトル・前線強制力",
+    "qvec850": "850hPa Qベクトル"
     "qgomg700": "700hPa QG-Omega (準地衡鉛直流)",
     "col-index": "500hPa 寒冷渦指標 (AS+)",
     "tfp850": "850hPa 客観前線 (Hewson) & TFP",
     "tfp925": "925hPa 客観前線 (Hewson) & TFP",
     "tfp700": "700hPa 客観前線 (Hewson) & TFP",
-    "frontogen": "850hPa 前線形成指数 (Petterssen)",
-    "ssi": "ショワルター安定指数 (SSI)"
+    "frontgen": "850hPa 前線形成指数 (Petterssen)",
 };
 
 const cycleSelect = document.getElementById("cycle-select");
