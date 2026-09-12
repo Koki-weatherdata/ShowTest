@@ -9,7 +9,7 @@ const VARIABLES = {
     "cam293": "寒気質量 (Cold Air Mass) [θ<293K]",
     "ivt": "水蒸気フラックス (IVT)",
     "ept850": "850hPa 相当温位・海面気圧",
-    "qvec850": "850hPa Qベクトル"
+    "qvec850": "850hPa Qベクトル",
     "qgomg700": "700hPa QG-Omega (準地衡鉛直流)",
     "col-index": "500hPa 寒冷渦指標 (AS+)",
     "tfp850": "850hPa 客観前線 (Hewson) & TFP",
