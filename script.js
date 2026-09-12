@@ -1,15 +1,22 @@
 const BASE_URL = "https://storage.googleapis.com/ecmwf-images-dev"; 
 
 const VARIABLES = {
-    "z500-vort": "500hPa 高度・絶対渦度",
-    "mslp-t850": "地上気圧・850hPa 気温・風",
+    "tp_msl": "海面気圧・3時間降水量 (mm/3h)",
+    "pwv": "可降水量 (PWV)・850hPa風",
+    "z500-vort": "500hPa 高度・相対渦度",
+    "mslp-t850": "海面気圧・850hPa 気温・風",
     "cam": "寒気質量 (Cold Air Mass) [θ<280K]",
     "cam293": "寒気質量 (Cold Air Mass) [θ<293K]",
     "ivt": "水蒸気フラックス (IVT)",
-    "ept850": "850hPa 相当温位",
-    "qvec850": "850hPa Qベクトル・発散",
-    "qgomg700": "700hPa QG-Omega",
-    "col-index": "500hPa 寒冷渦指標"
+    "ept850": "850hPa 相当温位・海面気圧",
+    "qvec850": "850hPa Qベクトル・前線強制力",
+    "qgomg700": "700hPa QG-Omega (準地衡鉛直流)",
+    "col-index": "500hPa 寒冷渦指標 (AS+)",
+    "tfp850": "850hPa 客観前線 (Hewson) & TFP",
+    "tfp925": "925hPa 客観前線 (Hewson) & TFP",
+    "tfp700": "700hPa 客観前線 (Hewson) & TFP",
+    "frontogen": "850hPa 前線形成指数 (Petterssen)",
+    "ssi": "ショワルター安定指数 (SSI)"
 };
 
 const cycleSelect = document.getElementById("cycle-select");
